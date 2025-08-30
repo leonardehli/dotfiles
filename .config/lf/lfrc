@@ -1,0 +1,288 @@
+# lf doc - https://godoc.org/github.com/gokcehan/lf
+# lfrc example - https://github.com/gokcehan/lf/blob/master/etc/lfrc.example
+
+# ========== General settings ==========
+
+set shell mksh
+set shellopts '-eu'
+set ifs "\n"
+set scrolloff 10
+set icons
+set period 1
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+#set drawbox
+set incsearch
+set smartcase
+set ignorecase
+set anchorfind
+set findlen 1
+set tabstop 2
+set info size
+set sixel true
+#set preview true
+set previewer ~/.config/lf/preview #img preview with sixel
+#set ratios 1:2:3
+set dircounts
+setlocal ~/Downloads sortby "atime"
+setlocal ~/Downloads reverse
+set autoquit true
+
+# ========== Commands ==========
+
+# Override the default open for file opening (binded to 'l' by default)
+cmd open &{{
+  case $(file --mime-type "$(readlink -f $f)" -b) in
+ 	  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) localc $fx ;;
+ 	  image/vnd.djvu|application/pdf|application/postscript) setsid -f zathura $fx >/dev/null 2>&1 ;;
+ 	  text/*|application/json|inode/x-empty|application/x-subrip) foot $EDITOR $fx;;
+ 	  image/x-xcf) setsid -f gimp $f >/dev/null 2>&1 ;;
+ 	  image/svg+xml) display -- $f ;;
+ 	  image/*) setsid -f imv $f 2>/dev/null | while read -r file; do
+ 	      [ -z "$file" ] && continue
+ 	      lf -remote "send select \"$file\""
+ 	      lf -remote "send toggle"
+ 	    done &
+ 	    ;;
+ 	  audio/*|video/x-ms-asf) mpv --audio-display=no $f ;;
+ 	  video/*) setsid -f mpv $f -quiet >/dev/null 2>&1 ;;
+ 	  application/pdf|application/vnd.djvu|application/epub*) setsid -f zathura $fx >/dev/null 2>&1 ;;
+ 	  application/pgp-encrypted) $EDITOR $fx ;;
+ 	  application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.oasis.opendocument.text|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|application/vnd.oasis.opendocument.spreadsheet|application/vnd.oasis.opendocument.spreadsheet-template|application/vnd.openxmlformats-officedocument.presentationml.presentation|application/vnd.oasis.opendocument.presentation-template|application/vnd.oasis.opendocument.presentation|application/vnd.ms-powerpoint|application/vnd.oasis.opendocument.graphics|application/vnd.oasis.opendocument.graphics-template|application/vnd.oasis.opendocument.formula|application/vnd.oasis.opendocument.database) setsid -f libreoffice $fx >/dev/null 2>&1 ;;
+ 	  application/octet-stream) case ${f##*.} in
+ 	    doc|docx|xls|xlsx|odt|ppt|pptx) setsid -f libreoffice $fx >/dev/null 2>&1 ;;
+ 	    ghw) setsid -f gtkwave $f >/dev/null 2>&1 ;;
+ 	    ts) setsid -f mpv $f -quiet >/dev/null 2>&1 ;;
+ 	    *) setsid -f zathura $fx >/dev/null 2>&1 ;;
+ 	  esac ;;
+ 	  *) for f in $fx; do setsid -f $OPENER $f >/dev/null 2>&1; done;;
+  esac
+}}
+
+cmd mkdir $mkdir -p "$(echo $* | tr ' ' '\ ')"
+
+# Create a directory with the selected items
+cmd new-folder-with-selection ${{
+  set -f
+  printf "Directory name: "
+  read newd
+  mkdir -- "$newd"
+  mv -- $fx "$newd"
+}}
+
+cmd chmod ${{
+  printf "\nMode Bits: "
+  read ans
+  for file in "$fx"
+  do
+    chmod $ans $file
+  done
+  lf -remote 'send reload'
+}}
+
+cmd extract ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n\t" "$fx"
+  printf "extract?[y/N]"
+  read ans
+  [ $ans = "y" ] && {
+    case $fx in
+      *.tar.bz2)   tar xjf $fx     ;;
+      *.tar.gz)    tar xzf $fx     ;;
+      *.bz2)       bunzip2 $fx     ;;
+      *.rar)       unrar e $fx     ;;
+      *.gz)        gunzip $fx      ;;
+      *.tar)       tar xf $fx      ;;
+      *.tbz2)      tar xjf $fx     ;;
+      *.tgz)       tar xzf $fx     ;;
+      *.zip)       unzip $fx       ;;
+      *.Z)         uncompress $fx  ;;
+      *.7z)        7z x $fx        ;;
+      *.tar.xz)    tar xf $fx      ;;
+    esac
+  }
+}}
+
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+cmd moveto ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  clear; echo "Move to where?"
+  dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+  for x in $fx; do
+    eval mv -iv \"$x\" \"$dest\"
+  done &&
+  notify-send "🚚 File(s) moved." "File(s) moved to $dest."
+}}
+
+cmd copyto ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  clear; echo "Copy to where?"
+  dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+  for x in $fx; do
+    eval cp -ivr \"$x\" \"$dest\"
+  done &&
+  notify-send "📋 File(s) copied." "File(s) copies to $dest."
+}}
+
+cmd delete ${{
+  set -f
+  printf "\n$fx\n"
+  printf "delete?[y/N]"
+  read ans
+  [ $ans = "y" ] && rm -rf -- $fx
+}}
+
+cmd select-all :unselect; invert
+
+# Bulk rename on selected files or all the non-hidden files in the current directory if no selection
+cmd bulk-rename ${{
+  old="$(mktemp)"
+  new="$(mktemp)"
+  if [ -n "$fs" ]; then
+    fs="$(basename $fs)"
+  else
+    fs="$(ls)"
+  fi
+  printf '%s\n' "$fs" >"$old"
+  printf '%s\n' "$fs" >"$new"
+  $EDITOR "$new"
+  [ "$(wc -l < "$new")" -ne "$(wc -l < "$old")" ] && exit
+  paste "$old" "$new" | while IFS= read -r names; do
+    src="$(printf '%s' "$names" | cut -f1)"
+    dst="$(printf '%s' "$names" | cut -f2)"
+    if [ "$src" = "$dst" ] || [ -e "$dst" ]; then
+        continue
+    fi
+    mv -- "$src" "$dst"
+  done
+  rm -- "$old" "$new"
+  lf -remote "send $id unselect"
+}}
+
+# Copy the file names (including extension) of the selections separated by \n
+cmd copy-filename ${{
+  names="$(echo $fx | tr ' ' '\n' | xargs -I{} basename {})"
+  echo $names | tr ' ' '\n' | pbcopy
+}}
+
+# Copy the absolute paths of selections separated by \n
+cmd copy-absolute-path ${{
+  echo $fx | tr ' ' '\n' | pbcopy
+}}
+
+# toggle the selections in fzf
+cmd fzf-select ${{
+  IFS=' '
+  exclude=$(cat $HOME/exclude | sed 's/^/--exclude /' | tr '\n' ' ')
+  selections=$(fd --max-depth 1 --hidden --follow $exclude | fzf \
+      --multi \
+      --header ':: ENTER (toggle the selections), CTRL-R (recursively, no depth limit), CTRL-L (limited to depth 1)' \
+      --bind "ctrl-r:reload(fd --hidden --follow $exclude),ctrl-l:reload(fd --max-depth 1 --hidden --follow $exclude)" \
+      --prompt 'Files> ') || true
+  if [[ -n $selections ]]; then
+    # Escape white spaces and format multi-line string to a single line one
+    targets=$(echo "$selections" | sed 's/ /\\ /g' | tr '\n' ' ')
+    lf -remote "send $id toggle $targets"
+  fi
+}}
+
+# cd into the selected directory in fzf
+cmd fzf-cd ${{
+  IFS=' '
+  exclude=$(cat $HOME/exclude | sed 's/^/--exclude /' | tr '\n' ' ')
+  select=$(fd --type d --hidden --follow $exclude | fzf --no-multi --header ':: ENTER (cd into the selected directory)' --prompt 'Dirs> ') || true
+  if [[ -n $select ]]; then
+    lf -remote "send $id cd $select"
+  fi
+}}
+
+# zoxide
+cmd z %{{
+  result="$(zoxide query --exclude $PWD $@ | sed 's/\\/\\\\/g;s/"/\\"/g')"
+  lf -remote "send $id cd \"$result\""
+}}
+
+cmd zi ${{
+  result="$(zoxide query -i | sed 's/\\/\\\\/g;s/"/\\"/g')"
+  lf -remote "send $id cd \"$result\""
+}}
+
+# ========== Mappings ==========
+
+# Remove some defaults
+map gh
+map d
+map y
+map <space>
+map zh
+
+# Luke Smiths binds
+map b $nohup changewallpaper $f
+map H cd ~
+map D delete
+map E extract
+map C copyto
+map M moveto
+map r reload
+map <c-s> set hidden!
+# general binds
+map z. set hidden!
+map <tab> :toggle;down
+map yy copy
+map yn copy-filename
+map yP copy-absolute-path
+map <enter> open
+map <esc> shell
+map o &mimeopen "$f"
+map O $mimeopen --ask "$f"
+map d delete
+# list the size of each item in the current directory
+map U !printf "\n";du -csh *
+map <c-f> fzf-select
+map <c-j> fzf-cd
+# give a name and then make a directory
+map <c-n> push :mkdir<space>
+map <a-n> new-folder-with-selection
+map x cut
+# give a name and then use vis to edit it
+map V push :!vis<space>
+
+# Navigate among the parent directories
+map [ push hkl
+map ] push hjl
+
+# Rename
+map r
+map A rename # at the very end
+map I push A<c-a> # at the very beginning
+map rn push A<c-u> # rename the filename
+map re push A<c-f><c-k> # rename the extension
+map <c-r> bulk-rename
+
+# Use <space> as the leader key
+# compress (give a name like abc and it will compress the selected items to abc.zip)
+map <space>c push :zip<space>
+# extract
+map <space>x extract
+# Open the directory in Finder on macOS
+map <space>f &if [[ -d $f ]]; then open $f; fi
+
+cmap <tab> cmd-menu-complete
+cmap <backtab> cmd-menu-complete-back

@@ -1,0 +1,19 @@
+font=IosevkaExtended 10
+
+background-color=#000000D9
+text-color=#EBDBB2
+
+border-radius=12
+border-size=2
+border-color=#458588ff
+
+padding=15
+width=300
+
+default-timeout=10000
+layer=overlay
+
+[urgency=critical]
+font=IosevkaExtended 11
+text-color=#FB4934
+default-timeout=0

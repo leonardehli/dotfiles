@@ -1,0 +1,3 @@
+#!/bin/sh
+
+bwrapper /usr/bin/torbrowser

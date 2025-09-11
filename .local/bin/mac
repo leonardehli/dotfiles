@@ -1,0 +1,5 @@
+#!/bin/sh
+
+doas ip link set dev eno0 down
+doas ip link set dev eno0 address 60:7d:09:c2:21:cc
+doas ip link set dev eno0 up

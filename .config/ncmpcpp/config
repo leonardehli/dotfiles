@@ -1,8 +1,9 @@
 ncmpcpp_directory = ~/.local/state/ncmpcpp
 mpd_host = localhost
 mpd_port = 6600
+mpd_music_dir = "~/Music"
 
-user_interface = classic
+user_interface = alternative
 header_visibility = yes
 statusbar_visibility = yes
 titles_visibility = yes
@@ -36,4 +37,4 @@ progressbar_elapsed_color = blue:b
 statusbar_color = red
 statusbar_time_color = cyan:b
 
-#execute_on_song_change = "~/.config/ncmpcpp/artwork.sh %a %t %f"
+execute_on_song_change = "~/.config/ncmpcpp/artwork.sh %F"

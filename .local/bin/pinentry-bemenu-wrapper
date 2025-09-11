@@ -1,0 +1,19 @@
+#!/bin/sh
+
+/usr/local/bin/pinentry-bemenu \
+	-l 5 \
+	--fn "IosevkaTerm NF 12" \
+	-H 21 \
+	--tb "#222222" \
+	--tf "#2cd6dd" \
+	--fb "#222222" \
+	--ff "#EBDBB2" \
+	--cf "#EBDBB2" \
+	--nb "#222222" \
+	--nf "#A89984" \
+	--hb "#2cd6dd" \
+	--hf "#000000" \
+	--fbf "#A89984" \
+	--sf "#2cd6dd" \
+	--ab "#222222" \
+	--af "#A89984" 

@@ -1,0 +1,6 @@
+[submodule ".local/src/catgirl"]
+	path = .local/src/catgirl
+	url = https://git.causal.agency/catgirl
+[submodule ".local/src/wl-color-picker"]
+	path = .local/src/wl-color-picker
+	url = https://github.com/percychecksum/wl-color-picker/tree/main

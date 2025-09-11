@@ -1,0 +1,41 @@
+#!/bin/sh
+
+CONTAINER="$HOME/containers/glibc-gentoo"
+USER_NAME="root"
+
+GUI_BACKEND="x11"
+
+if [ -n "$WAYLAND_DISPLAY" ] && [ -n "$XDG_RUNTIME_DIR" ]; then
+	GUI_BACKEND="wayland"
+fi
+
+BWRAP_OPTS=" \
+	--unshare-all \
+	--share-net \
+	--die-with-parent \
+	--new-session \
+	--ro-bind $CONTAINER / \
+	--proc /proc \
+	--dev /dev \
+	--tmpfs /tmp \
+	--tmpfs /run \
+	--tmpfs /dev/shm \
+	--ro-bind /etc/resolv.conf /etc/resolv.conf \
+	--dev-bind /dev/snd /dev/snd \
+	--tmpfs /home \
+	--dir /home/$USER_NAME \
+	--setenv HOME /home/$USER_NAME"
+
+if [ "$GUI_BACKEND" = "wayland" ]; then
+	BWRAP_OPTS="$BWRAP_OPTS \
+		--bind $XDG_RUNTIME_DIR $XDG_RUNTIME_DIR \
+		--setenv XDG_RUNTIME_DIR $XDG_RUNTIME_DIR \
+		--setenv WAYLAND_DISPLAY ${WAYLAND_DISPLAY:-wayland-0} \
+		--setenv MOZ_ENABLE_WAYLAND 1"
+else
+	BWRAP_OPTS="$BWRAP_OPTS \
+		--ro-bind /tmp/.X11-unix /tmp/.X11-unix \
+		--setenv DISPLAY ${DISPLAY:-0} "
+fi
+
+exec bwrap $BWRAP_OPTS "$@"

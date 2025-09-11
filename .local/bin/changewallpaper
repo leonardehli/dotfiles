@@ -1,0 +1,7 @@
+#!/bin/sh
+
+setwallpaper -m fill $1
+if [ -f $HOME/.local/share/bg ]; then
+	unlink $HOME/.local/share/bg
+fi
+link $1 $HOME/.local/share/bg

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+doas ip link set dev eno0 down
+doas ip link set dev eno0 address random
+doas ip link set dev eno0 up

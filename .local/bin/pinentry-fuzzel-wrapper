@@ -1,0 +1,8 @@
+#!/bin/sh
+
+/usr/bin/pinentry-fuzzel \
+	--dmenu \
+	--password \
+	-l 0 \
+	-w 60 |
+	-p "$1"

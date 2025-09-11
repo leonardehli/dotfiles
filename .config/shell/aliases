@@ -2,7 +2,7 @@
 
 # Use neovim for vim if present.
 
-[ -x "$(command -v vis)" ] && alias vim="vis"
+[ -x "$(command -v nvim)" ] && alias vim="nvim"
 
 [ -f "$MBSYNCRC" ] && alias mbsync="mbsync -c $MBSYNCRC"
 
@@ -28,18 +28,18 @@ alias \
 	yta="yt -x -f bestaudio/best" \
 	ytt="yt --skip-download --write-thumbnail" \
 	ffmpeg="ffmpeg -hide_banner" \
-  fmount="doas mount -o gid=$(id -g),uid=$USER" \
-  ff="fastfetch" \
-  neofetch="fastfetch" \
-  sc="sc-im" \
-  lf="lfrun" \
-  make="make -j5"
+	fmount="doas mount -o gid=$(id -g),uid=$USER" \
+	ff="fastfetch" \
+	neofetch="fastfetch" \
+	sc="sc-im" \
+	lf="lfrun" \
+	hyprpicker="hyprpicker -a -r"
 
 
 # Colorize commands when possible
 	#ls="ls -hN --color=auto --group-directories-first" \
 alias \
-  ls="ls -F --color=auto" \
+	ls="ls -F --color=auto" \
 	grep="grep --color=auto" \
 	diff="diff --color=auto" \
 	ip="ip -color=auto"
@@ -51,11 +51,10 @@ alias \
 	YT="youtube-viewer" \
 	sdn="shutdown -h now" \
 	e="$EDITOR" \
-	v="$EDITOR" \
+	v="$VISUAL" \
 	z="zathura" \
-  ll="ls -l" \
-  la="ls -la" \
+	ll="ls -l" \
+	la="ls -la" \
 	vpn="curl -s https://am.i.mullvad.net/json | jq -r '.ip, .country, .city'" \
-	cal="khal calendar" \
-  pdf="rsvg-convert --dpi-x=600 --dpi-y=600 --format=pdf" \
-  fmake="make && doas make install && make clean"
+	pdf="rsvg-convert --dpi-x=600 --dpi-y=600 --format=pdf" \
+	fmake="make && doas make install && make clean"

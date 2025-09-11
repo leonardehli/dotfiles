@@ -1,17 +1,18 @@
 [Default Applications]
-text/x-shellscript=text.desktop;
+text/x-shellscript=nvim.desktop;
+x-scheme-handler/terminal=foot.desktop
 x-scheme-handler/magnet=torrent.desktop;
 application/x-bittorrent=torrent.desktop;
-x-scheme-handler/mailto=mail.desktop;
-text/plain=text.desktop;
-application/postscript=pdf.desktop;
-application/pdf=pdf.desktop;
-image/png=img.desktop;
-image/jpeg=img.desktop;
-image/gif=img.desktop;
-application/rss+xml=rss.desktop
-video/x-matroska=video.desktop
-video/mp4=video.desktop
+x-scheme-handler/mailto=neomutt.desktop;
+text/plain=nvim.desktop
+application/postscript=zathura.desktop;
+application/pdf=zathura.desktop;
+image/png=imv.desktop;
+image/jpeg=imv.desktop;
+image/gif=imv.desktop;
+application/rss+xml=newsraft.desktop
+video/x-matroska=mpv.desktop
+video/mp4=mpv.desktop
 x-scheme-handler/lbry=lbry.desktop
 inode/directory=file.desktop
 x-scheme-handler/http=mullvad-browser.desktop
@@ -24,15 +25,3 @@ application/x-extension-shtml=mullvad-browser.desktop
 application/xhtml+xml=mullvad-browser.desktop
 application/x-extension-xhtml=mullvad-browser.desktop
 application/x-extension-xht=mullvad-browser.desktop
-
-[Added Associations]
-x-scheme-handler/http=mullvad-browser.desktop;
-x-scheme-handler/https=mullvad-browser.desktop;
-x-scheme-handler/chrome=mullvad-browser.desktop;
-text/html=mullvad-browser.desktop;
-application/x-extension-htm=mullvad-browser.desktop;
-application/x-extension-html=mullvad-browser.desktop;
-application/x-extension-shtml=mullvad-browser.desktop;
-application/xhtml+xml=mullvad-browser.desktop;
-application/x-extension-xhtml=mullvad-browser.desktop;
-application/x-extension-xht=mullvad-browser.desktop;

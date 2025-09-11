@@ -1,0 +1,3 @@
+#!/bin/sh
+
+bwrapper /opt/mullvad-browser/Browser/mullvadbrowser.real "$@"

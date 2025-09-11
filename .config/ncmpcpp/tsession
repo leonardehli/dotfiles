@@ -1,0 +1,30 @@
+neww
+set -g status off
+
+send-keys "ncmpcpp -s media_library" C-m
+
+split-window -v
+swap-pane -s 1 -t 2
+
+split-window -h
+
+resize-pane -t 1 -x 37 -y 16
+resize-pane -t 2 -y 16
+
+send-keys "ncmpcpp -s visualizer -c ~/.config/ncmpcpp/visualizer.conf" C-m
+
+select-pane -t 1
+
+send-keys "stty -echo" C-m
+send-keys "tput civis" C-m
+send-keys "export PS1=''" C-m
+send-keys "clear" C-m
+send-keys "~/.config/ncmpcpp/cover.sh" C-m
+
+select-pane -t 3
+
+set-hook window-resized[0] 'resize-pane -t 1 -x 37 -y 16'
+set-hook window-resized[1] 'run-shell ".config/ncmpcpp/artwork.sh $(mpc --format "%file%" | head -n1)"'
+
+resize-pane -t 1 -x 37 -y 16
+resize-pane -t 2 -y 16

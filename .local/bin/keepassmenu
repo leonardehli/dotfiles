@@ -1,0 +1,20 @@
+#!/bin/sh
+
+DB=/home/percy/Passwords.kdbx
+
+if [[ -n $WAYLAND_DISPLAY ]]; then
+	#pinentry=pinentry-bemenu-wrapper
+	pinentry=pinentry-fuzzel
+elif [[ -n $DISPALY ]]; then
+	pinentry=pinentry-dmenu
+elif [[ -t 0 ]]; then
+	pinentry=pinentry-curses
+else
+	echo "Error: No Wayland or X11 display detected, and didnt run in a terminal" >&2
+	exit 1
+fi
+
+passphrase=$(echo -e "SETPROMPT KeePassXC Passprhase:\nGETPIN\n" | $pinentry 2>/dev/null | sed -nr '0,/^D (.+)/s//\1/p')
+entry=$(keepassxc-cli ls -R -f $DB <<< $passphrase | sed -e '/\/$/d' -e '/^Recycle Bin/d' | fuzzel --dmenu -p "KeePassXC Entry: ") 
+
+keepassxc-cli clip -q "$DB" "$entry" 45 <<< $passphrase &

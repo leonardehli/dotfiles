@@ -1,0 +1,19 @@
+#!/bin/sh
+
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
+
+PROGRAM="Monitor Profile Loader"
+
+profiles="$(mrandr list | grep '(available)' | cut -d ' ' -f 1)"
+
+[ -z "$profiles" ] \
+  && notify-send "$PROGRAM" "No profile is available." \
+  && exit $EXIT_SUCCESS
+
+profile="$(echo "$profiles" | dmenu -p "Choose a profile: ")"
+[ -z "$profile" ] && exit $EXIT_SUCCESS
+
+mrandr load "$profile"
+
+exit $EXIT_SUCCESS

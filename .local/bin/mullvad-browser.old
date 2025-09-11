@@ -1,0 +1,41 @@
+#!/bin/sh
+
+CONTAINER="$HOME/containers/glibc-gentoo"
+USER_NAME="root"
+
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+	XDG_RUNTIME_DIR="/run/user/$(id -u)"
+fi
+export XDG_RUNTIME_DIR
+
+exec bwrap \
+	--unshare-all \
+	--share-net \
+	--die-with-parent \
+	--new-session \
+	\
+	--ro-bind "$CONTAINER" / \
+	--proc /proc \
+	--dev /dev \
+	--tmpfs /tmp \
+	--tmpfs /run \
+	--tmpfs /dev/shm \
+	--dev-bind /dev/dri /dev/dri \
+	--ro-bind /sys/class/drm /sys/class/drm \
+	--ro-bind $HOME/test_resolv.conf /etc/resolv.conf \
+	--ro-bind /etc/hosts /etc/hosts \
+	\
+	--bind "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR" \
+	--ro-bind /tmp/.X11-unix /tmp/.X11-unix \
+	--dev-bind /dev/snd /dev/snd \
+	\
+	--tmpfs /home \
+	--dir /home/$USER_NAME \
+	\
+	--setenv HOME "/home/$USER_NAME" \
+	--setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR" \
+	--setenv DISPLAY "${DISPLAY:-:0}" \
+	--setenv WAYLAND_DISPLAY "${WAYLAND_DISPLAY:-wayland-0}" \
+	--setenv MOZ_ENABLE_WAYLAND "1" \
+	\
+	/opt/mullvad-browser/Browser/mullvadbrowser.real

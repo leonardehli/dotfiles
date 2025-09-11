@@ -1,17 +1,29 @@
-{
+[{
 	"layer": "top",
+	"output": "DP-1",
 	"modules-left": ["hyprland/workspaces"],
-	"modules-center": ["mpris"],
-	"modules-right": ["cpu", "memory", "battery", "clock"],
+	"modules-center": ["mpd"],
+	"modules-right": ["tray", "wireplumber", "cpu", "memory", "battery", "clock", "custom/notification"],
 
 	"hyprland/workspaces": {
 		"format": "{icon}",
 		"on-click": "activate",
-		"persistent-workspaces" : {
-			"*": [ 1,2,3,4,5,6,7,8,9,10 ]
-		}
 	},
-	
+
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10,
+    },
+
+    "wireplumber": {
+      "format": "{icon} {volume}%",
+      "format-muted": " {volume}%",
+      "format-icons": [" ", " ", " "],
+      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+      "max-volume": 150,
+      "scroll-step": 1
+    },
+
 	"battery": {
 		"format": "{icon} {capacity}%",
 		"format-icons": [" ", " ", " ", " ", " "]
@@ -34,11 +46,75 @@
 	},
 
 	"mpris": {
-		"format": "{status_icon} {title} - {artist} - {album}",
+		"format": "{status_icon} {artist} - {album} - {title} ({position}/{length})",
 		"status-icons": {
-			"playing": " ", 
+			"playing": " ",
 			"paused": " ",
 			"stopped": " "
 		}
-	}
-}
+	},
+
+	"mpd": {
+    "format": "{stateIcon}  {artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}",
+    "format-disconnected": "Disconnected ",
+    "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+    "interval": 1,
+    "consume-icons": {
+        "on": " " // Icon shows only when "consume" is on
+    },
+    "random-icons": {
+        "on": " "
+    },
+    "repeat-icons": {
+        "on": " "
+    },
+    "single-icons": {
+        "on": "1 "
+    },
+    "state-icons": {
+        "paused": "",
+        "playing": ""
+    },
+    "tooltip-format": "MPD (connected)",
+    "tooltip-format-disconnected": "MPD (disconnected)",
+		"on-click": "mpc toggle"
+	},
+
+	"custom/notification": {
+                "tooltip": false,
+                "format": "{icon}",
+                "format-icons": {
+                     "notification": " <span foreground='red'><sup> </sup></span>",
+                     "none": " ",
+                     "dnd-notification": " <span foreground='red'><sup> </sup></span>",
+                     "dnd-none": " ",
+                     "inhibited-notification": " <span foreground='red'><sup> </sup></span>",
+                     "inhibited-none": " ",
+                     "dnd-inhibited-notification": " <span foreground='red'><sup> </sup></span>",
+                     "dnd-inhibited-none": " "
+                },
+                "return-type": "json",
+                "exec-if": "which swaync-client",
+                "exec": "swaync-client -swb",
+                "on-click": "swaync-client -t -sw",
+                "on-click-right": "swaync-client -d -sw",
+                "escape": true
+           },
+
+}, {
+	"layer": "top",
+	"output": ["HDMI-A-1", "LVDS-1"],
+	"modules-left": ["hyprland/workspaces"],
+	"modules-right": ["clock"],
+
+	"hyprland/workspaces": {
+		"format": "{icon}",
+		"on-click": "activate",
+	},
+
+	"clock": {
+		"format": "{:%d.%m.%Y (%a) %H:%M}",
+		"locale": "C",
+		"timezone": "Europe/Berlin"
+	},
+}]

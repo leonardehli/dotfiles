@@ -1,0 +1,106 @@
+#!/bin/sh
+
+ICONS=1			# 0 for text only
+DELIM=" | "
+#LDELIM="["	# ""
+#RDELIM="]"	# ""
+c="^fg()"
+red="^fg(#fb4934)"
+green="^fg(#B8BB26)"
+blue="^fg(#83a598)"
+purple="^fg(#D3869B)"
+yellow="^fg(#FABD2F)"
+white="^fg(#EBDBB2)"
+
+if [ "$ICONS" = 1 ]
+then
+	ram_icon=" "
+	cpu_icon="  "
+	# vol:   / / / 
+	#					   1  50 100
+	# net:   / / / 
+	#			 eth/wifi/vpn
+  # bat:   / / / / /  <- charging
+	#			 0 20 40 60 80 100
+else
+	ram_icon="RAM: "
+	cpu_icon="CPU: "
+	bat_icon="BAT: "
+	vol_icon="VOL: "
+	# net: eno0/wlp2s0
+fi
+	
+cpu=$cpu_icon"0%"
+
+while (true)
+do
+  date=$(date +'%d.%m.%Y (%a) %H:%M')
+  b=$(cat /sys/class/power_supply/BAT0/capacity)
+  ch=$(cat /sys/class/power_supply/BAT0/status)
+  v=$(amixer get Master | tail -n 1)
+  mute=$(echo $v | awk '{print $6}')
+  v=$(echo $v | awk '{sub("\\[","",$4);print substr($4, 1, length($4)-2)}')
+  if [ "$ICONS" = 1 ]; then
+  	if [ "$ch" = "Charging" ]; then 
+  		bat_icon=" "
+  	else
+			if [ "$b" -ge 80 ]; then
+				bat_icon="  "
+			elif [ "$b" -ge 60 ]; then
+				bat_icon="  "
+			elif [ "$b" -ge 40 ]; then
+				bat_icon="  "
+			elif [ "$b" -ge 20 ]; then
+				bat_icon="  "
+			elif [ "$b" -ge 0 ]; then
+				bat_icon="  "
+			fi
+		fi
+		if [ $mute=="[on]" ]; then
+			if [ "$v" -ge 50 ]; then
+				vol_icon="  "
+			elif [ "$v" -gt 0 ]; then
+				vol_icon="  "
+			else
+				vol_icon="  "
+			fi
+		else
+			vol_icon=" "
+		fi
+	fi
+	bat="$bat_icon$b%"
+	vol="$vol_icon$v%"
+  ram="$ram_icon$(free -h | awk '/^Mem/{print $3}')"
+  net=$(route | awk -v i="$ICONS" '
+  	END {
+  		if (NR < 3) {
+  			if (i)
+  				print " "
+  			else
+  				print "!"
+  		}
+  	} {
+  		if(NR == 3) {
+  			if (i) {
+  				if($8 == "eno0") print " " $2
+  				if($8 == "wlp2s0") print "  " $2
+  			}
+  			else {
+  				print $8 ":" $2	
+  			}
+  		}
+  	}')
+  
+  dwlb -status all "$LDELIM$purple$net$c$DELIM$yellow$cpu$c$DELIM$red$ram$c$DELIM$blue$vol$c$DELIM$green$bat$c$DELIM$white$date"
+  #dwlb -status all "[$purple$net$c] [$yellow$cpu$c] [$red$ram$c] [$blue$vol$c] [$green$bat$c] | $date"
+  #dwlb -status all "$purple[$net] $yellow[$cpu] $red[$ram] $blue[$vol] $green[$bat]$white | $date"
+  #dwlb -status all "$white[$net] [$cpu] [$ram] [$vol] [$bat] | $date"
+
+  cpu_tmp=$(awk '/cpu /{print $2+$4,$2+$4+$5}' /proc/stat)
+  sleep 1
+  cpu="$cpu_icon$(awk -v a="$cpu_tmp" '
+  	/cpu / {
+  		split(a,b," ")
+  		printf("%d%%", 100*($2+$4-b[1])/($2+$4+$5-b[2]))
+  	}' /proc/stat)"
+done

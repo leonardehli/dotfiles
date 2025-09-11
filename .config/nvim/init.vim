@@ -26,7 +26,7 @@ call plug#end()
 
 set title
 set bg=light
-set go=a
+"set go=a
 set mouse=a
 set nohlsearch
 set clipboard+=unnamedplus
@@ -34,7 +34,7 @@ set noshowmode
 set noruler
 set laststatus=0
 set noshowcmd
-set tabstop=4 softtabstop=2 expandtab
+set tabstop=2 softtabstop=2
 set shiftwidth=2
 set termguicolors
 

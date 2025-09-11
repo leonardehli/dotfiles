@@ -1,0 +1,16 @@
+#!/bin/sh
+
+while true
+do
+	prefix="/sys/class/power_supply/BAT0"
+	cap=$(cat $prefix/capacity)
+	stat=$(cat $prefix/status)
+	if [ "$cap" -le 20 ] && [ "$stat" = "Discharging" ]; then
+		if [ "$cap" -le 5 ]; then
+			notify-send -u2 "CRITICAL: LOW BATTERY" "Battery level below 5%"
+		else
+			notify-send "LOW BATTERY" "Battery level below 20%"
+		fi
+	fi
+	sleep 60
+done
